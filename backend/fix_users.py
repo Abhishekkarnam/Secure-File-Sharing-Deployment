@@ -23,7 +23,7 @@ with app.app_context():
         abhishek_user = User(username='Abhishek', password=valid_hash, role='user')
         db.session.add(abhishek_user)
         
-        # 5. Save changes to MySQL (CORRECTED LINE)
+        # 5. Save changes to PostgreSQL (CORRECTED LINE)
         db.session.commit()
         
         print("Database Updated Successfully!")

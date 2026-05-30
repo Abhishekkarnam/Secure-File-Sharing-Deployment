@@ -42,7 +42,7 @@ def save_secure_file(file, username):
     with open(file_path, 'wb') as f:
         f.write(encrypted_data)
 
-    # 3. Store metadata and AES key in MySQL
+    # 3. Store metadata and AES key in PostgreSQL
     existing_file = FileMetadata.query.filter_by(
         filename=filename,
         owner_id=user.id

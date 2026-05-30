@@ -1,5 +1,5 @@
 ﻿import os
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
@@ -38,9 +38,42 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+    @app.route('/')
+    def index():
+        return render_template('login.html')
+
+    @app.route('/login.html')
+    def login_page():
+        return render_template('login.html')
+
+    @app.route('/register.html')
+    def register_page():
+        return render_template('register.html')
+
+    @app.route('/dashboard.html')
+    def dashboard_page():
+        return render_template('dashboard.html')
+
+    @app.route('/upload.html')
+    def upload_page():
+        return render_template('upload.html')
+
+    @app.route('/files.html')
+    def files_page():
+        return render_template('files.html')
+
+    @app.route('/attack.html')
+    def attack_page():
+        return render_template('attack.html')
+
+    @app.route('/logs.html')
+    def logs_page():
+        return render_template('logs.html')
+
     return app
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
 

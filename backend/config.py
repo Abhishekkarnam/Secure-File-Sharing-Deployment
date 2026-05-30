@@ -6,8 +6,15 @@ load_dotenv()
 
 class Config:
     # 1. Database Connection String
-    # It pulls the details from the .env file automatically
-    SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
+    # Prefer Neon/PostgreSQL DATABASE_URL, with a fallback for older local env files.
+    database_url = os.getenv('DATABASE_URL')
+    if database_url and database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql+psycopg2://', 1)
+
+    SQLALCHEMY_DATABASE_URI = database_url or (
+        f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+        f"@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
+    )
     
     # 2. Security Settings
     SQLALCHEMY_TRACK_MODIFICATIONS = False

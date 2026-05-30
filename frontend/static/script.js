@@ -1,5 +1,3 @@
-const API_BASE = "http://127.0.0.1:5000";
-
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -57,7 +55,7 @@ async function handleLogin(e) {
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
 
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user, password: pass })
@@ -73,6 +71,44 @@ async function handleLogin(e) {
         const errorDiv = document.getElementById('error-msg');
         errorDiv.innerText = data.msg || "Invalid credentials";
         errorDiv.style.display = 'block';
+    }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    const errorDiv = document.getElementById('error-msg');
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+        errorDiv.innerText = '';
+    }
+
+    if (password !== confirmPassword) {
+        if (errorDiv) {
+            errorDiv.innerText = 'Passwords do not match.';
+            errorDiv.style.display = 'block';
+        }
+        return;
+    }
+
+    const response = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+        window.location.href = 'login.html?registered=1';
+    } else {
+        if (errorDiv) {
+            errorDiv.innerText = data.msg || 'Registration failed';
+            errorDiv.style.display = 'block';
+        }
     }
 }
 
@@ -92,7 +128,7 @@ function uploadFile() {
     formData.append("file", fileInput.files[0]);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_BASE}/files/upload`, true);
+    xhr.open("POST", '/files/upload', true);
     xhr.setRequestHeader("Authorization", `Bearer ${localStorage.getItem('token')}`);
 
     progressContainer.style.display = 'block';
@@ -167,7 +203,7 @@ async function loadFiles() {
     if (!tableBody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/files/list`, {
+        const res = await fetch('/files/list', {
             headers: getAuthHeader()
         });
 
@@ -203,7 +239,7 @@ async function loadDashboard() {
     if (!totalFilesEl) return;
 
     try {
-        const res = await fetch(`${API_BASE}/files/list`, {
+        const res = await fetch('/files/list', {
             headers: getAuthHeader()
         });
 
@@ -300,7 +336,7 @@ async function loadDashboard() {
 
 async function downloadFile(encodedFilename) {
     try {
-        const response = await fetch(`${API_BASE}/files/download/${encodedFilename}`, {
+        const response = await fetch(`/files/download/${encodedFilename}`, {
             headers: getAuthHeader()
         });
 
@@ -335,7 +371,7 @@ async function loadLogs() {
     if (!tableBody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/logs/all`, {
+        const res = await fetch('/logs/all', {
             headers: getAuthHeader()
         });
 
@@ -370,7 +406,7 @@ function simulateAttack(type) {
 
     logLine(`Starting ${type} simulation...`);
 
-    fetch(`${API_BASE}/attacks/simulate`, {
+    fetch('/attacks/simulate', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -387,8 +423,18 @@ function simulateAttack(type) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
+    const params = new URLSearchParams(window.location.search);
+    const errorDiv = document.getElementById('error-msg');
 
-    if (!token && !window.location.pathname.includes('login.html')) {
+    if (params.get('registered') === '1' && errorDiv) {
+        errorDiv.className = 'alert success';
+        errorDiv.innerText = 'Account created successfully. Please sign in.';
+        errorDiv.style.display = 'block';
+    }
+
+    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html');
+
+    if (!token && !isAuthPage) {
         window.location.href = 'login.html';
     }
 

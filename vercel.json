@@ -1,0 +1,40 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/frontend/templates/login.html"
+    },
+    {
+      "source": "/login.html",
+      "destination": "/frontend/templates/login.html"
+    },
+    {
+      "source": "/register.html",
+      "destination": "/frontend/templates/register.html"
+    },
+    {
+      "source": "/dashboard.html",
+      "destination": "/frontend/templates/dashboard.html"
+    },
+    {
+      "source": "/upload.html",
+      "destination": "/frontend/templates/upload.html"
+    },
+    {
+      "source": "/files.html",
+      "destination": "/frontend/templates/files.html"
+    },
+    {
+      "source": "/attack.html",
+      "destination": "/frontend/templates/attack.html"
+    },
+    {
+      "source": "/logs.html",
+      "destination": "/frontend/templates/logs.html"
+    },
+    {
+      "source": "/static/(.*)",
+      "destination": "/frontend/static/$1"
+    }
+  ]
+}
