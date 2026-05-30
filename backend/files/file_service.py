@@ -37,12 +37,7 @@ def save_secure_file(file, username):
     public_key = load_public_key(_crypto_key_path('public.pem'))
     encrypted_aes_key = encrypt_aes_key_with_rsa(aes_key, public_key)
 
-    # 2. Save physical encrypted file to /uploads
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    with open(file_path, 'wb') as f:
-        f.write(encrypted_data)
-
-    # 3. Store metadata and AES key in PostgreSQL
+    # 2. Store metadata, AES key, and encrypted bytes in PostgreSQL
     existing_file = FileMetadata.query.filter_by(
         filename=filename,
         owner_id=user.id
@@ -50,11 +45,13 @@ def save_secure_file(file, username):
 
     if existing_file:
         existing_file.encrypted_aes_key = encrypted_aes_key
+        existing_file.encrypted_file_data = encrypted_data
         existing_file.upload_date = datetime.utcnow()
     else:
         new_file = FileMetadata(
             filename=filename,
             encrypted_aes_key=encrypted_aes_key,
+            encrypted_file_data=encrypted_data,
             owner_id=user.id
         )
         db.session.add(new_file)
@@ -70,13 +67,16 @@ def get_secure_file(filename):
     if not file_record:
         return None
 
-    # 2. Read the encrypted file from disk
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    if not os.path.exists(file_path):
-        return None
+    # 2. Read the encrypted file bytes from PostgreSQL first.
+    encrypted_data = file_record.encrypted_file_data
+    if not encrypted_data:
+        # Backward compatibility for older local uploads.
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        if not os.path.exists(file_path):
+            return None
 
-    with open(file_path, 'rb') as f:
-        encrypted_data = f.read()
+        with open(file_path, 'rb') as f:
+            encrypted_data = f.read()
 
     # 3. Decrypt using the stored AES key
     aes_key = _resolve_stored_aes_key(file_record.encrypted_aes_key)

@@ -11,6 +11,7 @@ class FileMetadata(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     encrypted_aes_key = db.Column(db.LargeBinary, nullable=False) # BLOB
+    encrypted_file_data = db.Column(db.LargeBinary, nullable=False) # BLOB
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
 

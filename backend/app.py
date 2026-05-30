@@ -3,6 +3,7 @@ from flask import Flask, render_template
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
+from sqlalchemy import inspect, text
 
 # These imports must match your folder and variable names exactly
 from config import Config
@@ -37,6 +38,17 @@ def create_app():
     # 4. Create Tables Automatically
     with app.app_context():
         db.create_all()
+        inspector = inspect(db.engine)
+        if 'file_metadata' in inspector.get_table_names():
+            column_names = {column['name'] for column in inspector.get_columns('file_metadata')}
+            if 'encrypted_file_data' not in column_names:
+                db.session.execute(
+                    text(
+                        "ALTER TABLE file_metadata "
+                        "ADD COLUMN encrypted_file_data BYTEA NOT NULL DEFAULT '\\x'::bytea"
+                    )
+                )
+                db.session.commit()
 
     @app.route('/')
     def index():
