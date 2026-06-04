@@ -267,8 +267,8 @@ async function loadDashboard() {
         }
 
         const dashboardLogLink = document.getElementById('dashboard-log-link');
-        if (dashboardLogLink && role === 'admin') {
-            dashboardLogLink.style.display = 'inline-flex';
+        if (dashboardLogLink) {
+            dashboardLogLink.style.display = role === 'admin' ? 'inline-flex' : 'none';
         }
 
         const fileList = document.getElementById('dashboard-file-list');
@@ -447,9 +447,16 @@ document.addEventListener('DOMContentLoaded', () => {
         userDisplay.innerText = `Welcome back, ${localStorage.getItem('username')}`;
     }
 
+    const role = localStorage.getItem('role');
+
     const logNav = document.getElementById('nav-logs');
-    if (logNav && localStorage.getItem('role') !== 'admin') {
-        logNav.style.display = 'none';
+    if (logNav) {
+        logNav.style.display = role === 'admin' ? 'inline-flex' : 'none';
+    }
+
+    const dashboardLogLink = document.getElementById('dashboard-log-link');
+    if (dashboardLogLink) {
+        dashboardLogLink.style.display = role === 'admin' ? 'inline-flex' : 'none';
     }
 
     const fileInput = document.getElementById('fileInput');
