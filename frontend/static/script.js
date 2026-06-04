@@ -266,11 +266,6 @@ async function loadDashboard() {
             heroRoleBadge.classList.toggle('admin', role === 'admin');
         }
 
-        const dashboardLogLink = document.getElementById('dashboard-log-link');
-        if (dashboardLogLink) {
-            dashboardLogLink.style.display = role === 'admin' ? 'inline-flex' : 'none';
-        }
-
         const fileList = document.getElementById('dashboard-file-list');
         if (fileList) {
             if (!sortedFiles.length) {
